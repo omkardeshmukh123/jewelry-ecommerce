@@ -4,7 +4,7 @@ import { FaGem, FaShippingFast, FaUndo, FaShieldAlt } from 'react-icons/fa';
 import ProductCard from '../components/products/ProductCard';
 import Loader from '../components/common/Loader';
 import { productService } from '../services/productService';
-import { useParallax } from '../hooks/useParallax';
+// import { useParallax } from '../hooks/useParallax';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import './Home.css';
 
@@ -12,8 +12,8 @@ const Home = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Parallax effect for hero section
-    const parallaxOffset = useParallax(0.5);
+    // Parallax effect for hero section (currently unused)
+    // const parallaxOffset = useParallax(0.5);
 
     // Scroll animations for sections
     const [featuresRef, featuresVisible] = useScrollAnimation({ once: true, threshold: 0.2 });
