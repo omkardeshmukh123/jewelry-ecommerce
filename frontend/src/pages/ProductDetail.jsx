@@ -87,11 +87,31 @@ const ProductDetail = () => {
     };
 
     const handleWhatsAppOrder = () => {
-        let message = `Hi, I'm interested in ordering:\\n\\n*${product.name}*\\nCategory: ${product.category}\\nPrice: ₹${finalPrice.toLocaleString()}\\nQuantity: ${quantity}`;
-        if (selectedColor) {
-            message += `\\nColor: ${selectedColor}`;
+        // Create a well-formatted WhatsApp message
+        let message = `🛍️ *DRISORA - New Order Inquiry*\n\n`;
+        message += `📦 *Product Details:*\n`;
+        message += `━━━━━━━━━━━━━━━━━━━━\n`;
+        message += `🏷️ Product: *${product.name}*\n`;
+        message += `📂 Category: ${product.category}\n`;
+        message += `💰 Price: ₹${finalPrice.toLocaleString()}\n`;
+
+        if (product.discount > 0) {
+            message += `🎁 Discount: ${product.discount}% OFF\n`;
+            message += `~~₹${product.price.toLocaleString()}~~ → ₹${finalPrice.toLocaleString()}\n`;
         }
-        message += `\\n\\nProduct Link: ${window.location.href}`;
+
+        message += `📊 Quantity: ${quantity}\n`;
+
+        if (selectedColor) {
+            message += `🎨 Color: ${selectedColor}\n`;
+        }
+
+        message += `\n💵 *Total Amount: ₹${(finalPrice * quantity).toLocaleString()}*\n\n`;
+
+        message += `🔗 Product Link:\n${window.location.href}\n\n`;
+
+        message += `✨ _Thank you for choosing Drisora!_`;
+
         const whatsappUrl = `https://wa.me/9604934590?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
