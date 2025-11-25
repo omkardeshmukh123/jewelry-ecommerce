@@ -1,12 +1,8 @@
-# Railway Nixpacks Configuration
 [phases.setup]
-nixPkgs = ["nodejs-18_x"]
+nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["npm install --production=false"]
-
-[phases.build]
-cmds = ["echo 'No build step required'"]
+cmds = ["npm install"]
 
 [start]
-cmd = "npm start"
+cmd = "node server.js"
