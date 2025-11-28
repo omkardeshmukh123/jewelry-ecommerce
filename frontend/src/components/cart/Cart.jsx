@@ -25,7 +25,7 @@ const Cart = () => {
             return;
         }
 
-        const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '1234567890';
+        const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '9604934590';
         let message = '🛍️ *New Order from Drisora*\\n\\n';
 
         cartItems.forEach((item, index) => {
@@ -40,7 +40,7 @@ const Cart = () => {
         message += 'Please confirm this order. Thank you!';
 
         const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+        const whatsappUrl = `https://wa.me/${9604934590}?text=${encodedMessage}`;
 
         window.open(whatsappUrl, '_blank');
         toast.success('Redirecting to WhatsApp...');
