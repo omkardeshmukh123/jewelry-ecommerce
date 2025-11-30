@@ -3,7 +3,7 @@ import { FaWhatsapp, FaShippingFast, FaHeadset } from 'react-icons/fa';
 import './Orders.css';
 
 const Orders = () => {
-    const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '9604934590';
+    const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '919604934590';
 
     return (
         <div className="orders-page">

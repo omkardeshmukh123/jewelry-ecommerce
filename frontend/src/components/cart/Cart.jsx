@@ -25,7 +25,7 @@ const Cart = () => {
             return;
         }
 
-        const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '9604934590000';
+        const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '919604934590';
         let message = '🛍️ *New Order from Drisora*\\n\\n';
 
         cartItems.forEach((item, index) => {

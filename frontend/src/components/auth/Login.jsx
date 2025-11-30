@@ -12,7 +12,7 @@ const Login = () => {
         password: '',
     });
     const [loading, setLoading] = useState(false);
-    const { login, setUser, setToken } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -48,15 +48,10 @@ const Login = () => {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
 
-                // Update auth context
-                setToken(response.data.token);
-                setUser(response.data.user);
-
                 toast.success(response.data.message);
                 navigate('/');
             }
         } catch (error) {
-            console.error('Google login error:', error);
             toast.error(error.response?.data?.message || 'Google login failed');
         }
     };

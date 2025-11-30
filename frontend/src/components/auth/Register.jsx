@@ -15,7 +15,7 @@ const Register = () => {
         phone: '',
     });
     const [loading, setLoading] = useState(false);
-    const { register, setUser, setToken } = useAuth();
+    const { register } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -63,15 +63,10 @@ const Register = () => {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
 
-                // Update auth context
-                setToken(response.data.token);
-                setUser(response.data.user);
-
                 toast.success(response.data.message);
                 navigate('/');
             }
         } catch (error) {
-            console.error('Google signup error:', error);
             toast.error(error.response?.data?.message || 'Google signup failed');
         }
     };

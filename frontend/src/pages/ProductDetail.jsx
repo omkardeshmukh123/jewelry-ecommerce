@@ -51,7 +51,7 @@ const ProductDetail = () => {
             const filtered = response.products.filter(p => p._id !== currentProductId);
             setSimilarProducts(filtered.slice(0, 4));
         } catch (error) {
-            console.error('Failed to fetch similar products:', error);
+            // Error handled silently
         }
     };
 
@@ -112,7 +112,8 @@ const ProductDetail = () => {
 
         message += `✨ _Thank you for choosing Drisora!_`;
 
-        const whatsappUrl = `https://wa.me/9604934590?text=${encodeURIComponent(message)}`;
+        const whatsappNumber = process.env.REACT_APP_WHATSAPP_NUMBER || '919604934590';
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
 

@@ -16,6 +16,9 @@ const AdminDashboard = () => {
         description: '',
         price: '',
         category: 'Rings',
+        material: 'Gold',
+        purity: '22K',
+        weight: '',
         images: '',
         stock: '',
         discount: '0',
@@ -62,6 +65,9 @@ const AdminDashboard = () => {
             description: product.description,
             price: product.price.toString(),
             category: product.category,
+            material: product.material || 'Gold',
+            purity: product.purity || '22K',
+            weight: product.weight?.toString() || '',
             images: product.images.join(', '),
             stock: product.stock.toString(),
             discount: product.discount?.toString() || '0',
@@ -77,6 +83,9 @@ const AdminDashboard = () => {
             description: '',
             price: '',
             category: 'Rings',
+            material: 'Gold',
+            purity: '22K',
+            weight: '',
             images: '',
             stock: '',
             discount: '0',
@@ -114,6 +123,7 @@ const AdminDashboard = () => {
                 price: parseFloat(formData.price),
                 stock: parseInt(formData.stock),
                 discount: parseFloat(formData.discount) || 0,
+                weight: formData.weight ? parseFloat(formData.weight) : undefined,
             };
 
             if (editingProduct) {
@@ -130,6 +140,9 @@ const AdminDashboard = () => {
                 description: '',
                 price: '',
                 category: 'Rings',
+                material: 'Gold',
+                purity: '22K',
+                weight: '',
                 images: '',
                 stock: '',
                 discount: '0',
@@ -201,6 +214,60 @@ const AdminDashboard = () => {
                                         <option value="Nose Pins">Nose Pins</option>
                                         <option value="Mangalsutra">Mangalsutra</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label htmlFor="material" className="form-label">Material *</label>
+                                    <select
+                                        id="material"
+                                        name="material"
+                                        className="form-select"
+                                        value={formData.material}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="Gold">Gold</option>
+                                        <option value="Silver">Silver</option>
+                                        <option value="Platinum">Platinum</option>
+                                        <option value="Diamond">Diamond</option>
+                                        <option value="Gemstone">Gemstone</option>
+                                        <option value="Mixed">Mixed</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="purity" className="form-label">Purity</label>
+                                    <select
+                                        id="purity"
+                                        name="purity"
+                                        className="form-select"
+                                        value={formData.purity}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="14K">14K</option>
+                                        <option value="18K">18K</option>
+                                        <option value="22K">22K</option>
+                                        <option value="24K">24K</option>
+                                        <option value="925 Silver">925 Silver</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="weight" className="form-label">Weight (grams)</label>
+                                    <input
+                                        type="number"
+                                        id="weight"
+                                        name="weight"
+                                        className="form-input"
+                                        value={formData.weight}
+                                        onChange={handleChange}
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                    />
                                 </div>
                             </div>
 

@@ -28,7 +28,7 @@ const Home = () => {
             const response = await productService.getFeaturedProducts();
             setFeaturedProducts(response.products || []);
         } catch (error) {
-            console.error('Error fetching featured products:', error);
+            // Error handled silently - products will be empty array
         } finally {
             setLoading(false);
         }

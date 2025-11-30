@@ -32,7 +32,7 @@ const Shop = () => {
             const response = await productService.getProducts(params);
             setProducts(response.products || []);
         } catch (error) {
-            console.error('Error fetching products:', error);
+            // Error handled silently
         } finally {
             setLoading(false);
         }
@@ -86,8 +86,26 @@ const Shop = () => {
                         <option value="Rings">Rings</option>
                         <option value="Necklaces">Necklaces</option>
                         <option value="Earrings">Earrings</option>
+                        <option value="Bracelets">Bracelets</option>
+                        <option value="Bangles">Bangles</option>
+                        <option value="Pendants">Pendants</option>
+                        <option value="Chains">Chains</option>
+                        <option value="Anklets">Anklets</option>
+                        <option value="Nose Pins">Nose Pins</option>
+                        <option value="Mangalsutra">Mangalsutra</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <select
+                        value={filters.sort}
+                        onChange={(e) => handleFilterChange('sort', e.target.value)}
+                        className="filter-select"
+                    >
+                        <option value="-createdAt">Newest First</option>
+                        <option value="price">Price: Low to High</option>
                         <option value="-price">Price: High to Low</option>
                         <option value="name">Name: A-Z</option>
+                        <option value="-name">Name: Z-A</option>
                     </select>
 
                     <button onClick={clearFilters} className="btn btn-outline btn-sm">
