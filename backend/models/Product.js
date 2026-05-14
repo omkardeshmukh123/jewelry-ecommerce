@@ -78,6 +78,16 @@ const productSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        avgRating: {
+            type: Number,
+            default: 0,
+            min: [0, 'Rating must be at least 0'],
+            max: [5, 'Rating cannot exceed 5'],
+        },
+        numReviews: {
+            type: Number,
+            default: 0,
+        },
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',

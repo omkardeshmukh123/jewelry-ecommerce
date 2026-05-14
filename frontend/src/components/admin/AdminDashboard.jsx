@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { productService } from '../../services/productService';
 import { toast } from 'react-toastify';
 import { FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
+import ImageUploader from './ImageUploader';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
         material: 'Gold',
         purity: '22K',
         weight: '',
-        images: '',
+        images: [],
         stock: '',
         discount: '0',
         featured: false,
@@ -68,7 +69,10 @@ const AdminDashboard = () => {
             material: product.material || 'Gold',
             purity: product.purity || '22K',
             weight: product.weight?.toString() || '',
-            images: product.images.join(', '),
+            // Normalise to [{url, key}] — existing products may just have URL strings
+            images: product.images.map((img) =>
+                typeof img === 'string' ? { url: img, key: null } : img
+            ),
             stock: product.stock.toString(),
             discount: product.discount?.toString() || '0',
             featured: product.featured || false,
@@ -86,7 +90,7 @@ const AdminDashboard = () => {
             material: 'Gold',
             purity: '22K',
             weight: '',
-            images: '',
+            images: [],
             stock: '',
             discount: '0',
             featured: false,
@@ -112,10 +116,16 @@ const AdminDashboard = () => {
         setLoading(true);
 
         try {
+            // Extract plain URLs from [{url, key}] objects
             const imagesArray = formData.images
-                .split(',')
-                .map(img => img.trim())
-                .filter(img => img);
+                .map((img) => (typeof img === 'string' ? img : img.url))
+                .filter(Boolean);
+
+            if (imagesArray.length === 0) {
+                toast.error('Please upload at least one product image');
+                setLoading(false);
+                return;
+            }
 
             const productData = {
                 ...formData,
@@ -143,7 +153,7 @@ const AdminDashboard = () => {
                 material: 'Gold',
                 purity: '22K',
                 weight: '',
-                images: '',
+                images: [],
                 stock: '',
                 discount: '0',
                 featured: false,
@@ -333,22 +343,13 @@ const AdminDashboard = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="images" className="form-label">
-                                    Image URLs (Google Drive links, comma-separated) *
+                                <label className="form-label">
+                                    Product Images * <small>(up to 5, first = main)</small>
                                 </label>
-                                <textarea
-                                    id="images"
-                                    name="images"
-                                    className="form-textarea"
+                                <ImageUploader
                                     value={formData.images}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="https://drive.google.com/..., https://drive.google.com/..."
-                                    rows="3"
+                                    onChange={(imgs) => setFormData(prev => ({ ...prev, images: imgs }))}
                                 />
-                                <small className="form-hint">
-                                    Paste Google Drive direct image links, separated by commas
-                                </small>
                             </div>
 
                             <div className="form-group">

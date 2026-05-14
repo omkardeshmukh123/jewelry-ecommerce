@@ -8,8 +8,12 @@ const {
     getFeaturedProducts,
 } = require('../controllers/productController');
 const { protect, authorize } = require('../middleware/auth');
+const reviewRoutes = require('./reviewRoutes');
 
 const router = express.Router();
+
+// Re-route into review router for nested /api/products/:productId/reviews
+router.use('/:productId/reviews', reviewRoutes);
 
 router.get('/featured', getFeaturedProducts);
 router.get('/', getProducts);

@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import Loader from '../components/common/Loader';
 import ProductCard from '../components/products/ProductCard';
+import ReviewSection from '../components/products/ReviewSection';
 import { toast } from 'react-toastify';
 import './ProductDetail.css';
 
@@ -19,13 +20,10 @@ const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState(0);
     const [selectedColor, setSelectedColor] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [reviews, setReviews] = useState([]);
-    const [newReview, setNewReview] = useState({ rating: 5, comment: '', name: '' });
     const [similarProducts, setSimilarProducts] = useState([]);
 
     useEffect(() => {
         fetchProduct();
-        loadReviews();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
@@ -55,36 +53,7 @@ const ProductDetail = () => {
         }
     };
 
-    const loadReviews = () => {
-        const savedReviews = localStorage.getItem(`reviews_${id}`);
-        if (savedReviews) {
-            setReviews(JSON.parse(savedReviews));
-        }
-    };
 
-    const saveReviews = (updatedReviews) => {
-        localStorage.setItem(`reviews_${id}`, JSON.stringify(updatedReviews));
-        setReviews(updatedReviews);
-    };
-
-    const handleAddReview = (e) => {
-        e.preventDefault();
-        if (!newReview.name.trim() || !newReview.comment.trim()) {
-            toast.error('Please fill in all fields');
-            return;
-        }
-
-        const review = {
-            id: Date.now(),
-            ...newReview,
-            date: new Date().toLocaleDateString()
-        };
-
-        const updatedReviews = [review, ...reviews];
-        saveReviews(updatedReviews);
-        setNewReview({ rating: 5, comment: '', name: '' });
-        toast.success('Review added successfully!');
-    };
 
     const handleWhatsAppOrder = () => {
         // Create a well-formatted WhatsApp message
@@ -141,24 +110,11 @@ const ProductDetail = () => {
         const stars = [];
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 !== 0;
-
-        for (let i = 0; i < fullStars; i++) {
-            stars.push(<FaStar key={i} className="star filled" />);
-        }
-        if (hasHalfStar) {
-            stars.push(<FaStarHalfAlt key="half" className="star filled" />);
-        }
+        for (let i = 0; i < fullStars; i++) stars.push(<FaStar key={i} className="star filled" />);
+        if (hasHalfStar) stars.push(<FaStarHalfAlt key="half" className="star filled" />);
         const emptyStars = 5 - Math.ceil(rating);
-        for (let i = 0; i < emptyStars; i++) {
-            stars.push(<FaRegStar key={`empty-${i}`} className="star" />);
-        }
+        for (let i = 0; i < emptyStars; i++) stars.push(<FaRegStar key={`empty-${i}`} className="star" />);
         return stars;
-    };
-
-    const calculateAverageRating = () => {
-        if (reviews.length === 0) return 0;
-        const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-        return (sum / reviews.length).toFixed(1);
     };
 
     if (loading) {
@@ -210,10 +166,11 @@ const ProductDetail = () => {
 
                         <div className="product-rating">
                             <div className="stars">
-                                {renderStars(parseFloat(calculateAverageRating()))}
+                                {renderStars(parseFloat(product.avgRating || 0))}
                             </div>
                             <span className="rating-text">
-                                {calculateAverageRating()} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                                {product.avgRating > 0 ? product.avgRating.toFixed(1) : 'No ratings yet'}
+                                {product.numReviews > 0 && ` (${product.numReviews} ${product.numReviews === 1 ? 'review' : 'reviews'})`}
                             </span>
                         </div>
 
@@ -327,78 +284,11 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Reviews Section */}
-                <div className="reviews-section">
-                    <h2>Customer Reviews</h2>
-
-                    {/* Add Review Form */}
-                    <div className="add-review">
-                        <h3>Write a Review</h3>
-                        <form onSubmit={handleAddReview}>
-                            <div className="form-group">
-                                <label>Your Name *</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={newReview.name}
-                                    onChange={(e) => setNewReview({ ...newReview, name: e.target.value })}
-                                    placeholder="Enter your name"
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Rating *</label>
-                                <div className="rating-input">
-                                    {[5, 4, 3, 2, 1].map((star) => (
-                                        <label key={star}>
-                                            <input
-                                                type="radio"
-                                                name="rating"
-                                                value={star}
-                                                checked={newReview.rating === star}
-                                                onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
-                                            />
-                                            <span>{star} {renderStars(star)}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="form-group">
-                                <label>Your Review *</label>
-                                <textarea
-                                    className="form-textarea"
-                                    value={newReview.comment}
-                                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                                    placeholder="Share your experience with this product..."
-                                    rows="4"
-                                    required
-                                />
-                            </div>
-                            <button type="submit" className="btn btn-primary">
-                                Submit Review
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Reviews List */}
-                    <div className="reviews-list">
-                        {reviews.length === 0 ? (
-                            <p className="no-reviews">No reviews yet. Be the first to review this product!</p>
-                        ) : (
-                            reviews.map((review) => (
-                                <div key={review.id} className="review-card">
-                                    <div className="review-header">
-                                        <div>
-                                            <h4>{review.name}</h4>
-                                            <div className="stars">{renderStars(review.rating)}</div>
-                                        </div>
-                                        <span className="review-date">{review.date}</span>
-                                    </div>
-                                    <p className="review-comment">{review.comment}</p>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+                <ReviewSection
+                    productId={id}
+                    avgRating={product.avgRating || 0}
+                    numReviews={product.numReviews || 0}
+                />
 
                 {/* Similar Products Section */}
                 {similarProducts.length > 0 && (
