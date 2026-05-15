@@ -1,72 +1,100 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../services/authService';
+import { createContext, useContext, useState, useEffect } from 'react';
+import api from '../api/axios';
+import toast from 'react-hot-toast';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('drisora_user'));
+    } catch { return null; }
+  });
+  const [loading, setLoading] = useState(false);
+
+  const saveAuth = (token, userData) => {
+    localStorage.setItem('drisora_token', token);
+    localStorage.setItem('drisora_user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  const register = async (name, email, password) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post('/auth/register', { name, email, password });
+      saveAuth(data.token, data.user);
+      toast.success('Account created! Welcome to Drisora.');
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Registration failed';
+      toast.error(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
     }
-    return context;
-};
+  };
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const login = async (email, password) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post('/auth/login', { email, password });
+      saveAuth(data.token, data.user);
+      toast.success(`Welcome back, ${data.user.name}!`);
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Login failed';
+      toast.error(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        // Check if user is logged in on mount
-        const storedUser = authService.getStoredUser();
-        const token = authService.getToken();
+  const googleLogin = async (credential) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post('/auth/google', { credential });
+      saveAuth(data.token, data.user);
+      toast.success(`Welcome, ${data.user.name}!`);
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Google login failed';
+      toast.error(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (storedUser && token) {
-            setUser(storedUser);
-        }
-        setLoading(false);
-    }, []);
+  const updateProfile = async (profileData) => {
+    setLoading(true);
+    try {
+      const { data } = await api.put('/auth/profile', profileData);
+      localStorage.setItem('drisora_user', JSON.stringify(data.user));
+      setUser(data.user);
+      toast.success('Profile updated successfully!');
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Update failed';
+      toast.error(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const register = async (userData) => {
-        const data = await authService.register(userData);
-        setUser(data.user);
-        return data;
-    };
+  const logout = () => {
+    localStorage.removeItem('drisora_token');
+    localStorage.removeItem('drisora_user');
+    setUser(null);
+    toast.success('Signed out successfully');
+  };
 
-    const login = async (credentials) => {
-        const data = await authService.login(credentials);
-        setUser(data.user);
-        return data;
-    };
+  return (
+    <AuthContext.Provider value={{ user, loading, register, login, googleLogin, updateProfile, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
-    const logout = () => {
-        authService.logout();
-        setUser(null);
-    };
-
-    const updateUser = async (userData) => {
-        const data = await authService.updateProfile(userData);
-        setUser(data.user);
-        return data;
-    };
-
-    const isAdmin = () => {
-        return user?.role === 'admin';
-    };
-
-    const isAuthenticated = () => {
-        return !!user && !!authService.getToken();
-    };
-
-    const value = {
-        user,
-        loading,
-        register,
-        login,
-        logout,
-        updateUser,
-        isAdmin,
-        isAuthenticated,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+export const useAuth = () => useContext(AuthContext);

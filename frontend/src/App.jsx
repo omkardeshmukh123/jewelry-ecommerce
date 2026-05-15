@@ -1,82 +1,83 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import 'react-toastify/dist/ReactToastify.css';
-
-// Context Providers
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
-import { WishlistProvider } from './context/WishlistContext';
+import Navbar from './components/Navbar/Navbar';
+import Footer from './components/Footer/Footer';
+import Home from './pages/Home/Home';
+import Collections from './pages/Collections/Collections';
+import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Cart from './pages/Cart/Cart';
+import Auth from './pages/Auth/Auth';
+import Profile from './pages/Profile/Profile';
+import Admin from './pages/Admin/Admin';
 
-// Components
-import Navbar from './components/common/Navbar';
-import Footer from './components/common/Footer';
-
-// Pages
-import Home from './pages/Home';
-import Shop from './pages/Shop';
-import ProductDetail from './pages/ProductDetail';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Wishlist from './pages/Wishlist';
-import Orders from './pages/Orders';
-import Profile from './pages/Profile';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import Cart from './components/cart/Cart';
-import AdminDashboard from './components/admin/AdminDashboard';
-
-// Styles
-import './styles/index.css';
-
-function App() {
-    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
-
-    return (
-        <GoogleOAuthProvider clientId={googleClientId}>
-            <Router>
-                <AuthProvider>
-                    <CartProvider>
-                        <WishlistProvider>
-                            <div className="App">
-                                <Navbar />
-                                <main>
-                                    <Routes>
-                                        <Route path="/" element={<Home />} />
-                                        <Route path="/shop" element={<Shop />} />
-                                        <Route path="/product/:id" element={<ProductDetail />} />
-                                        <Route path="/about" element={<About />} />
-                                        <Route path="/contact" element={<Contact />} />
-                                        <Route path="/wishlist" element={<Wishlist />} />
-                                        <Route path="/orders" element={<Orders />} />
-                                        <Route path="/profile" element={<Profile />} />
-                                        <Route path="/login" element={<Login />} />
-                                        <Route path="/register" element={<Register />} />
-                                        <Route path="/cart" element={<Cart />} />
-                                        <Route path="/admin" element={<AdminDashboard />} />
-                                    </Routes>
-                                </main>
-                                <Footer />
-                                <ToastContainer
-                                    position="top-right"
-                                    autoClose={3000}
-                                    hideProgressBar={false}
-                                    newestOnTop
-                                    closeOnClick
-                                    rtl={false}
-                                    pauseOnFocusLoss
-                                    draggable
-                                    pauseOnHover
-                                    theme="dark"
-                                />
-                            </div>
-                        </WishlistProvider>
-                    </CartProvider>
-                </AuthProvider>
-            </Router>
-        </GoogleOAuthProvider>
-    );
+// Protected route wrapper
+function Protected({ children, adminOnly = false }) {
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('drisora_user')); }
+    catch { return null; }
+  })();
+  if (!user) return <Navigate to="/auth" replace />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/" replace />;
+  return children;
 }
 
-export default App;
+// Layout without navbar/footer (auth, admin)
+function AppLayout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <div style={{ paddingTop: 0 }}>{children}</div>
+      <Footer />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <Routes>
+          {/* Auth - no navbar/footer */}
+          <Route path="/auth" element={<Auth />} />
+
+          {/* Admin - no footer, its own layout */}
+          <Route path="/admin" element={
+            <Protected adminOnly>
+              <Admin />
+            </Protected>
+          } />
+
+          {/* Main app routes */}
+          <Route path="/" element={
+            <AppLayout><Home /></AppLayout>
+          } />
+          <Route path="/collections" element={
+            <AppLayout><Collections /></AppLayout>
+          } />
+          <Route path="/products/:id" element={
+            <AppLayout><ProductDetail /></AppLayout>
+          } />
+          <Route path="/cart" element={
+            <AppLayout><Cart /></AppLayout>
+          } />
+          <Route path="/profile" element={
+            <Protected>
+              <AppLayout><Profile /></AppLayout>
+            </Protected>
+          } />
+          <Route path="/orders" element={
+            <Protected>
+              <AppLayout><Profile /></AppLayout>
+            </Protected>
+          } />
+          <Route path="/about"   element={<AppLayout><Home /></AppLayout>} />
+          <Route path="/contact" element={<AppLayout><Home /></AppLayout>} />
+
+          {/* 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </CartProvider>
+    </AuthProvider>
+  );
+}
