@@ -22,6 +22,9 @@ connectDB();
 
 const app = express();
 
+// Trust Vercel's proxy so express-rate-limit can read X-Forwarded-For
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet());
 
